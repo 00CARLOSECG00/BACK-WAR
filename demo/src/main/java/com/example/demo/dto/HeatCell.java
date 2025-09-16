@@ -1,8 +1,9 @@
-package main.java.com.example.demo.dto;
-
+package com.example.demo.dto;
 
 import lombok.Data;
-@Data public class HeatCell {
+
+@Data
+public class HeatCell {
   public String geohash6;
   public Double lat;
   public Double lng;

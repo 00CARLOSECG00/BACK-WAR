@@ -1,8 +1,10 @@
-package main.java.com.example.demo.dto;
+package com.example.demo.dto;
 
+import java.util.List;
+import lombok.Data;
 
-import java.util.List; import lombok.Data;
-@Data public class Lookups {
+@Data
+public class Lookups {
   public List<String> countries;
   public List<String> regions;
   public List<Integer> years;

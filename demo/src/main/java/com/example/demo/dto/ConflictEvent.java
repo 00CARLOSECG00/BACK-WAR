@@ -1,9 +1,9 @@
-package main.java.com.example.demo.dto;
-
+package com.example.demo.dto;
 
 import lombok.Data;
 
-@Data public class ConflictEvent {
+@Data
+public class ConflictEvent {
   public String id;
   public String relid;
   public Integer year;

@@ -1,8 +1,9 @@
-package main.java.com.example.demo.web;
+package com.example.demo.web;
 
 
-import com.example.war.dto.*;
-import com.example.war.service.EventService;
+
+import com.example.demo.dto.*;
+import com.example.demo.service.EventService;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
@@ -35,15 +36,13 @@ public class EventController {
     return svc.heat(q);
   }
 
-  // Si HOY vas a usar PowerBI/BigQuery EMBEBIDO desde el front:
-  // puedes mantener estos endpoints como fallback (PG) o devolver 204.
   @GetMapping("/stats/series")
   public List<TimePoint> series(@RequestParam Map<String,String> q){
-    return svc.series(q); // o bien: throw new ResponseStatusException(HttpStatus.NO_CONTENT)
+    return svc.series(q);
   }
 
   @GetMapping("/stats/by-region")
   public List<RegionAgg> byRegion(@RequestParam Map<String,String> q){
-    return svc.byRegion(q); // idem comentario
+    return svc.byRegion(q);
   }
 }

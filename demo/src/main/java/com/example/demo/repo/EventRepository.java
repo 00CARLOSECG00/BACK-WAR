@@ -1,9 +1,9 @@
-package main.java.com.example.demo.repo;
+package com.example.demo.repo;
 
 
 
-import com.example.war.dto.*;
-import org.springframework.jdbc.core.*;
+import com.example.demo.dto.*;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
@@ -14,7 +14,6 @@ public class EventRepository {
   private final JdbcTemplate jdbc;
   public EventRepository(JdbcTemplate jdbc){ this.jdbc = jdbc; }
 
-  // Mappers
   private ConflictEvent mapEvent(ResultSet rs, int rn) throws java.sql.SQLException {
     ConflictEvent e = new ConflictEvent();
     e.id = rs.getString("id");
@@ -68,7 +67,6 @@ public class EventRepository {
     return e;
   }
 
-  // List paginada con filtros
   public PaginatedResponse<ConflictEvent> pageEvents(Map<String,String> q) {
     int page = Integer.parseInt(q.getOrDefault("page","1"));
     int pageSize = Integer.parseInt(q.getOrDefault("pageSize","50"));
@@ -90,7 +88,6 @@ public class EventRepository {
     """);
     List<Object> params = new ArrayList<>();
 
-    // filtros
     if (q.containsKey("from")) { sql.append(" AND date_start::date >= to_date(?,'YYYY-MM-DD') "); params.add(q.get("from")); }
     if (q.containsKey("to"))   { sql.append(" AND date_start::date <= to_date(?,'YYYY-MM-DD') "); params.add(q.get("to")); }
     if (q.containsKey("countries")) { sql.append(" AND country = ANY(string_to_array(? ,',')) "); params.add(q.get("countries")); }
@@ -105,13 +102,12 @@ public class EventRepository {
     if (q.containsKey("clarityMin")) { sql.append(" AND event_clarity >= ? "); params.add(Integer.parseInt(q.get("clarityMin"))); }
     if (q.containsKey("clarityMax")) { sql.append(" AND event_clarity <= ? "); params.add(Integer.parseInt(q.get("clarityMax"))); }
 
-    // total
     String countSql = "SELECT COUNT(*) FROM ("+sql.toString()+") t";
     Integer total = jdbc.queryForObject(countSql, params.toArray(), Integer.class);
 
-    // orden y paginación
     sql.append(" ORDER BY date_start NULLS LAST, id ");
-    sql.append(" LIMIT ? OFFSET ? "); params.add(pageSize); params.add(offset);
+    sql.append(" LIMIT ? OFFSET ? ");
+    params.add(pageSize); params.add(offset);
 
     List<ConflictEvent> data = jdbc.query(sql.toString(), params.toArray(), this::mapEvent);
 
@@ -150,7 +146,6 @@ public class EventRepository {
   }
 
   public List<HeatCell> heat(Map<String,String> q){
-    // Simple: sin filtros → vista precalculada
     return jdbc.query("SELECT geohash6, lat, lng, count FROM vw_heat_geohash6",
       (rs,rn)->{
         HeatCell h = new HeatCell();
@@ -162,7 +157,6 @@ public class EventRepository {
       });
   }
 
-  // Fallback de series desde Postgres (por si decides no llamar PowerBI)
   public List<TimePoint> series(Map<String,String> q){
     StringBuilder s = new StringBuilder("""
       SELECT to_char(date_start::date,'YYYY-MM') AS period,
